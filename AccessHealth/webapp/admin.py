@@ -17,4 +17,7 @@ admin.site.register(WearableDevice)
 admin.site.register(Notification)
 admin.site.register(Hospital)
 admin.site.register(Appointment)
+admin.site.register(DoctorHospital)
+admin.site.register(Consultation)
+admin.site.register(PatientNotificationPreference)
 # Register your models here.
