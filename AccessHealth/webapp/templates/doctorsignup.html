@@ -1,0 +1,361 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Signup</title>
+
+  <!-- BOOTSTRAP CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'style.css'%}" />
+  <!-- BOOTSTRAP ICONS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- LEFT PANEL -->
+      <div class="col-md-6 d-none d-md-block left-panel">
+        <div class="d-flex align-items-center mb-4">
+          <img src="{% static 'rwand.png' %}" alt="Rwanda Flag" class="flag-inline" />
+          <h2 class="ms-2 mb-0">Made For Rwanda</h2>
+        </div>
+
+        <h4 class="mt-4">Join Our Network of Healthcare Professionals</h4>
+        <p>
+          Connect with patients across Rwanda and<br />
+          provide quality healthcare through our innovative platform.
+        </p>
+
+        <ul class="mt-5">
+          <li>
+            <img src="{% static 'peopl3.png' %}" alt="expand" />
+            <div>
+              <strong>Expand Your Practice</strong><br />
+              Reach thousands of potential patients across Rwanda
+            </div>
+          </li>
+          <li>
+            <img src="{% static 'vbox.png' %}" alt="appointments" />
+            <div>
+              <strong>Manage Appointments</strong><br />
+              Streamline your schedule with our booking system
+            </div>
+          </li>
+          <li>
+            <img src="{%static 'draft.png' %}" alt="patient-data" />
+            <div>
+              <strong>Access Patient Data</strong><br />
+              View medical records securely
+            </div>
+          </li>
+          <li>
+            <img src="{% static 'dollar.png' %}" alt="pricing" />
+            <div>
+              <strong>Transparent Pricing</strong><br />
+              Set your rates and get paid securely
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="col-md-6 form-container">
+        <div class="text-center mb-4">
+          <div class="d-flex justify-content-center align-items-center">
+            <img src="{% static 'heart.png' %}" alt="AccessHealth Logo" style="height:38px; margin-right:10px;" />
+            <h3 class="form-title m-0">AccessHealth</h3>
+          </div>
+          <h4 class="mt-3">Join as a Healthcare Professional</h4>
+          <p>Create your professional profile to start connecting with patients</p>
+        </div>
+
+        <!-- TABS -->
+        <ul class="nav nav-tabs mb-4" id="signupTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab">Personal Info</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="professional-tab" data-bs-toggle="tab" data-bs-target="#professional" type="button" role="tab" data-next="#professional">Professional Info</button>          </li>
+        </ul>
+
+        <!-- FORM -->
+        <form method="post" action="">
+          {% csrf_token %}
+          <div class="tab-content" id="signupTabsContent">
+            
+            <!-- PERSONAL INFO TAB -->
+            <div class="tab-pane fade show active" id="personal" role="tabpanel">
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>First Name</label>
+                  <input type="text" class="form-control"  name="first_name" placeholder="First Name" required/>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label>Last Name</label>
+                  <input type="text" class="form-control" name="last_name" placeholder="Last Name" required />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Date of Birth</label>
+                  <input type="date" class="form-control" name="dob" required/>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label>Gender</label>
+                  <select  name="gender" class="form-control" required>
+                    <option value="" selected>Select</option>
+                    <option value="M" {% if form.gender.value == 'M' %}selected{% endif %}>Male</option>
+                    <option value="F" {% if form.gender.value == 'F' %}selected{% endif %}>Female</option>
+                    <option value="O" {% if form.gender.value == 'O' %}selected{% endif %}>Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label>Email Address</label>
+                <input type="email" class="form-control" name="email"   placeholder="your.email@example.com" required/>
+              </div>
+
+              <div class="mb-3">
+                <label>Phone Number</label>
+                <input type="text" class="form-control" name="phone_number" placeholder="+250 XXX XXX XXX" required/>
+              </div>
+
+              <!-- PASSWORD SEPARATED -->
+              <div class="mb-3">
+                <label>Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Create a password (min. 8 chars)" required/>
+              </div>
+
+              <div class="mb-3">
+                <label>Confirm Password</label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required/>
+              </div>
+              <div id="pw-message" style="color: #dc3545; font-size: 0.95em; margin-top: 3px;"></div>
+                  
+              <div class="tab-nav-btn mt-3" data-next="#professional" role="button" tabindex="0">
+                Next: Professional Info <i class="bi bi-arrow-right-circle-fill"></i>
+              </div>
+            </div>
+
+            <!-- PROFESSIONAL INFO TAB -->
+            <div class="tab-pane fade" id="professional" role="tabpanel">
+              <div class="mb-3">
+                <label>Medical Licence Number</label>
+                <input type="text" name="doctor_licence_number" class="form-control" placeholder="Enter your license number" required/>
+              </div>
+
+              
+              <div class="row">
+                  <div class="col-md-6 mb-3">
+                      <label for="district">Primary Practice District</label>
+                      <select id="primary_practice_district" name="district" class="form-control" required>
+                          <option value="" disabled selected>Select district</option>
+                          
+                          <option value="Gasabo">Gasabo</option>
+                          <option value="Kicukiro">Kicukiro</option>
+                          <option value="Nyarugenge">Nyarugenge</option>
+
+                          <option value="Bugesera">Bugesera</option>
+                          <option value="Gatsibo">Gatsibo</option>
+                          <option value="Kayonza">Kayonza</option>
+                          <option value="Kirehe">Kirehe</option>
+                          <option value="Ngoma">Ngoma</option>
+                          <option value="Nyagatare">Nyagatare</option>
+                          <option value="Rwamagana">Rwamagana</option>
+
+                          <option value="Burera">Burera</option>
+                          <option value="Gakenke">Gakenke</option>
+                          <option value="Gicumbi">Gicumbi</option>
+                          <option value="Musanze">Musanze</option>
+                          <option value="Rulindo">Rulindo</option>
+
+                          <option value="Gisagara">Gisagara</option>
+                          <option value="Huye">Huye</option>
+                          <option value="Kamonyi">Kamonyi</option>
+                          <option value="Muhanga">Muhanga</option>
+                          <option value="Nyamagabe">Nyamagabe</option>
+                          <option value="Nyanza">Nyanza</option>
+                          <option value="Nyaruguru">Nyaruguru</option>
+                          <option value="Ruhango">Ruhango</option>
+
+                          <option value="Karongi">Karongi</option>
+                          <option value="Ngororero">Ngororero</option>
+                          <option value="Nyabihu">Nyabihu</option>
+                          <option value="Nyamasheke">Nyamasheke</option>
+                          <option value="Rubavu">Rubavu</option>
+                          <option value="Rusizi">Rusizi</option>
+                          <option value="Rutsiro">Rutsiro</option>
+                      </select>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                      <label for="sector">Primary Practice Sector</label>
+                      <select id="primary_practice_sector" name="sector" class="form-control" disabled required>
+                          <option value="" disabled selected>Select District First</option>
+                      </select>
+                  </div>
+              </div>
+
+
+              <div class="mb-3">
+                <label>Specialization</label>
+                <select name="specialization" class="form-control" required>
+                  <option value="GENERAL" >General Practice</option>
+                  <option value="NEUROLOGY" >NEUROLOGY</option>
+                  <option value="ORTHOPEDICS" >ORTHOPEDICS</option>
+                  <option value="PEDIATRICS" >PEDIATRICS</option>
+                  <option value="PSYCHIATRY" >PSYCHIATRY</option>
+                  <option value="ONCOLOGY" >ONCOLOGY</option>
+                  <option value="CARDIOLOGY" >CARDIOLOGY</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label>Years of Experience</label>
+                <input type="number" name="years_of_experience" class="form-control" placeholder="e.g. 5" required/>
+              </div>
+
+              <div class="mb-3">
+                  <label for="id_hospital">Hospital/Clinic Affiliation</label>
+                  {{ form.hospital }}
+              </div>
+
+              <div class="mb-3">
+                <label>Professional Bio (Optional)</label>
+                <input type="text" name="professional_bio" class="form-control" placeholder="Short description of your experience" value="{{ form.professional_bio.value|default_if_none:''}}" />
+              </div>
+
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" required/>
+                <label class="form-check-label">
+                  I agree to the <a href="#" class="text-success">Healthcare Provider Terms</a> and
+                  <a href="#" class="text-success">Privacy Policy</a>
+                </label>
+              </div>
+
+              <button type="submit" class="btn btn-success w-100 mb-3">Submit Application</button>
+            </div>
+            <p class="text-center">Already have an account? <a href="{% url 'doctor_login' %}" class="text-success">Sign in</a></p>
+
+          </div>
+          {% if form.errors %}
+  <ul>
+    {% for field, errors in form.errors.items %}
+      {% for error in errors %}
+        <li>{{ field }}: {{ error }}</li>
+      {% endfor %}
+    {% endfor %}
+  </ul>
+{% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOTSTRAP JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'main.js' %}"></script>
+
+<script>
+    const rwandaSectors = {
+        // --- Kigali City ---
+        "Gasabo": ["Bumbogo", "Gatsata", "Jali", "Gikomero", "Gisozi", "Jabana", "Kinyinya", "Ndera", "Nduba", "Rusororo", "Rutunga", "Kacyiru", "Kimihurura", "Kimironko", "Remera"],
+        "Kicukiro": ["Gahanga", "Gatenga", "Gikondo", "Kagarama", "Kanombe", "Kicukiro", "Kigarama", "Masaka", "Niboye", "Nyarugunga"],
+        "Nyarugenge": ["Gitega", "Kanyinya", "Kigali", "Kimisagara", "Mageragere", "Muhima", "Nyakabanda", "Nyamirambo", "Nyarugenge", "Rwezamenyo"],
+
+        // --- Eastern Province ---
+        "Bugesera": ["Gashora", "Juru", "Kamabuye", "Ntarama", "Mareba", "Mayange", "Musenyi", "Mwogo", "Ngeruka", "Nyamata", "Nyarugenge", "Rilima", "Ruhuha", "Rweru", "Shyara"],
+        "Gatsibo": ["Gasange", "Gatsibo", "Gitoki", "Kabarore", "Kageyo", "Kiramuruzi", "Kiziguro", "Muhura", "Murambi", "Ngarama", "Nyagihanga", "Remera", "Rugarama", "Rwimbogo"],
+        "Kayonza": ["Gahini", "Kabare", "Kabarondo", "Mukarange", "Murama", "Murundi", "Mwiri", "Ndego", "Nyamirama", "Rukara", "Ruramira", "Rwinkwavu"],
+        "Kirehe": ["Gahara", "Gatore", "Kigina", "Kirehe", "Mahama", "Mpanga", "Musaza", "Mushikiri", "Nasho", "Nyamugari", "Nyarubuye", "Kigarama"],
+        "Ngoma": ["Gashanda", "Jarama", "Karembo", "Kazo", "Kibungo", "Mugesera", "Murama", "Mutenderi", "Remera", "Rukira", "Rukumberi", "Rurenge", "Sake", "Zaza"],
+        "Nyagatare": ["Gatunda", "Karama", "Karangazi", "Katabagemu", "Kiyombe", "Matimba", "Mimuri", "Mukama", "Musheri", "Nyagatare", "Rukomo", "Rwempasha", "Rwimiyaga", "Tabagwe"],
+        "Rwamagana": ["Fumbwe", "Gahengeri", "Gishari", "Karenge", "Kigabiro", "Muhazi", "Munyaga", "Muyumbu", "Mwulire", "Nyakariro", "Nzige", "Rubona", "Rwamagana", "Sha"],
+
+        // --- Northern Province ---
+        "Burera": ["Bungwe", "Butaro", "Cyanika", "Cyeru", "Gahunga", "Gatebe", "Gitovu", "Kagogo", "Kinoni", "Kinyababa", "Kivuye", "Nemba", "Rugarama", "Rugendabari", "Ruhunde", "Rusarabuye", "Rwerere"],
+        "Gakenke": ["Busengo", "Coko", "Cyabingo", "Gakenke", "Gashenyi", "Janja", "Kamubuga", "Karambo", "Kivuruga", "Mataba", "Minazi", "Mugunga", "Muhondo", "Muyongwe", "Muzo", "Nemba", "Ruli", "Rusasa", "Rushashi"],
+        "Gicumbi": ["Bukure", "Bwisige", "Byumba", "Cyumba", "Giti", "Kaniga", "Manyagiro", "Miyove", "Kageyo", "Mukarange", "Muko", "Mutete", "Nyamiyaga", "NyankenkeII", "Rubaya", "Rukomo", "Rushaki", "Rutare", "Ruvune", "Rwamiko", "Shangasha"],
+        "Musanze": ["Busogo", "Cyuve", "Gacaca", "Gashaki", "Gataraga", "Kimonyi", "Kinigi", "Muhoza", "Muko", "Musanze", "Nkotsi", "Nyange", "Remera", "Rwaza", "Shingiro"],
+        "Rulindo": ["Base", "Burega", "Bushoki", "Buyoga", "Cyinzuzi", "Cyungo", "Kinihira", "Kisaro", "Masoro", "Mbogo", "Murambi", "Ngoma", "Ntarabana", "Rukozo", "Rusiga", "Shyorongi", "Tumba"],
+
+        // --- Southern Province ---
+        "Gisagara": ["Gikonko", "Gishubi", "Kansi", "Kibilizi", "Kigembe", "Mamba", "Muganza", "Mugombwa", "Mukindo", "Musha", "Ndora", "Nyanza", "Save"],
+        "Huye": ["Gishamvu", "Karama", "Kigoma", "Kinazi", "Maraba", "Mbazi", "Mukura", "Ngoma", "Ruhashya", "Huye", "Rusatira", "Rwaniro", "Simbi", "Tumba"],
+        "Kamonyi": ["Gacurabwenge", "Karama", "Kayenzi", "Kayumbu", "Mugina", "Musambira", "Ngamba", "Nyamiyaga", "Nyarubaka", "Rugarika", "Rukoma", "Runda"],
+        "Muhanga": ["Cyeza", "Kabacuzi", "Kibangu", "Kiyumba", "Muhanga", "Mushishiro", "Nyabinoni", "Nyamabuye", "Nyarusange", "Rongi", "Rugendabari", "Shyogwe"],
+        "Nyamagabe": ["Buruhukiro", "Cyanika", "Gatare", "Kaduha", "Kamegeri", "Kibirizi", "Kibumbwe", "Kitabi", "Mbazi", "Mugano", "Musange", "Musebeya", "Mushubi", "Nkomane", "Gasaka", "Tare", "Uwinkingi"],
+        "Nyanza": ["Busasamana", "Busoro", "Cyabakamyi", "Kibirizi", "Kigoma", "Mukingo", "Muyira", "Ntyazo", "Nyagisozi", "Rwabicuma"],
+        "Nyaruguru": ["Cyahinda", "Busanze", "Kibeho", "Mata", "Munini", "Kivu", "Ngera", "Ngoma", "Nyabimata", "Nyagisozi", "Muganza", "Ruheru", "Ruramba", "Rusenge"],
+        "Ruhango": ["Bweramana", "Byimana", "Kabagari", "Kinazi", "Mbuye", "Mwendo", "Ntongwe", "Ruhango", "Shyogwe"],
+
+        // --- Western Province ---
+        "Karongi": ["Bwishyura", "Gishyita", "Gishari", "Gitesi", "Mubuga", "Murambi", "Murundi", "Mutuntu", "Rubengera", "Rugabano", "Ruganda", "Rwankuba", "Twumba"],
+        "Ngororero": ["Bwira", "Gatumba", "Hindiro", "Kabaya", "Kageyo", "Kavumu", "Matyazo", "Muhanda", "Muhororo", "Ndaro", "Ngororero", "Nyange", "Sovu"],
+        "Nyabihu": ["Bigogwe", "Jenda", "Jomba", "Kabatwa", "Karago", "Kintobo", "Mukamira", "Muringa", "Rambura", "Rugera", "Rurembo", "Shyira"],
+        "Nyamasheke": ["Bushekeri", "Bushenge", "Cyato", "Gihombo", "Kagano", "Kanjongo", "Karambi", "Karengera", "Kirimbi", "Macuba", "Mahembe", "Nyabitekeri", "Rangiro", "Ruharambuga", "Shangi"],
+        "Rubavu": ["Bugeshi", "Busasamana", "Cyanzarwe", "Gisenyi", "Kanama", "Kanzenze", "Mudende", "Nyakiriba", "Nyamyumba", "Nyundo", "Rubavu", "Rugerero"],
+        "Rusizi": ["Bugarama", "Butare", "Bweyeye", "Gikundamvura", "Gashonga", "Giheke", "Gihundwe", "Gitambi", "Kamembe", "Muganza", "Mururu", "Nkanka", "Nkombo", "Nkungu", "Nyakabuye", "Nyakarenzo", "Nzahaha", "Rwimbogo"],
+        "Rutsiro": ["Boneza", "Gihango", "Kigeyo", "Kivumu", "Manihira", "Mukura", "Murunda", "Musasa", "Mushonyi", "Mushubati", "Nyabirasi", "Ruhango", "Rusebeya"]
+    };
+
+    const districtSelect = document.getElementById('primary_practice_district');
+    const sectorSelect = document.getElementById('primary_practice_sector');
+
+    districtSelect.addEventListener('change', function() {
+        const selectedDistrict = this.value; // Now returns just "Gasabo", etc.
+        
+        sectorSelect.innerHTML = '<option value="" disabled selected>Select Sector</option>';
+        
+        if (rwandaSectors[selectedDistrict]) {
+            const sectors = rwandaSectors[selectedDistrict];
+            
+            sectors.forEach(function(sector) {
+                const option = document.createElement('option');
+                option.value = sector;
+                option.textContent = sector;
+                sectorSelect.appendChild(option);
+            });
+            
+            sectorSelect.disabled = false;
+        } else {
+            sectorSelect.disabled = true;
+        }
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% if messages %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Define the Toast configuration
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end', // Top right corner
+            showConfirmButton: false,
+            timer: 3000, // Disappears after 3 seconds
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        // Loop through Django messages
+        {% for message in messages %}
+            Toast.fire({
+                icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                title: "{{ message }}"
+            });
+        {% endfor %}
+    });
+</script>
+</body>
+</html>

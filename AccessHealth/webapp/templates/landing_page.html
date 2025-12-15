@@ -1,0 +1,209 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AccessHealth Rwanda</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+   <!-- Shared CSS -->
+  <link rel="stylesheet" href="{% static 'style.css' %}" />
+  <!-- Arimo font from Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <span><img src="{% static 'heart.png' %}" alt="AccessHealth Logo" /></span>
+        <span class="fw-bold">AccessHealth</span>
+      </a>
+      <div class="ms-auto d-flex align-items-center">
+        <span class="me-3">🌐</span>
+        <select class="form-select d-inline-block w-auto me-2">
+          <option selected>EN</option>
+          <option>FR</option>
+          <option>Kinyarwanda</option>
+        </select>
+        <button class="btn btn-outline-success me-2" data-bs-toggle="modal" data-bs-target="#loginRoleModal">Log in</button>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#signupRoleModal">Sign up</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section container-fluid">
+    <div class="hero-badge">🇷🇼 Made for Rwanda</div>
+    <h1 class="hero-title">Healthcare at Your Fingertips</h1>
+    <p class="hero-desc">
+      Find affordable doctors, get AI-powered health guidance, and monitor your health with connected devices across Rwanda.
+    </p>
+    <div class="mb-3">
+      <a href="{% url 'patient_signup' %}" class="btn btn-access me-2">Get Started</a>
+      <button class="btn btn-access-outline" onclick="document.getElementById('features').scrollIntoView({ behavior: 'smooth' });">Learn More</button>
+    </div>
+    <!-- Hero Image and Overlay Card -->
+    <div class="hero-image-container">
+      <img src="{% static 'doctors.png' %}" alt="Doctors" class="hero-img" />
+      <div class="overlay-card">
+        <span class="overlay-icon"><img src="{% static 'heart.png' %}" alt="AccessHealth Logo" /></span>
+        <div class="overlay-card-text">
+          <strong>24/7 Support</strong><br>
+          <span>Always here for you</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Bar -->
+  <section class="stats-bar container-fluid my-5">
+    <div>
+      <div style="font-weight:400;">5,000+ Doctors</div>
+      <div class="stats-label">Across Rwanda</div>
+    </div>
+    <div>
+      <div style="font-weight:400;">50+ Hospitals</div>
+      <div class="stats-label">Partner Facilities</div>
+    </div>
+    <div>
+      <div style="font-weight:400;">All 30 Districts</div>
+      <div class="stats-label">Coverage</div>
+    </div>
+  </section>
+
+  <!-- Core Features -->
+  <section id="features" class="core-features-section container-fluid">
+    <div class="core-features-title">Core Features</div>
+    <div class="core-features-desc">
+      Comprehensive healthcare solutions designed specifically for Rwanda's healthcare system
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-4 mb-4">
+        <div class="feature-card">
+          <span class="feature-icon">&#128269;</span>
+          <div class="feature-name">Find Doctors</div>
+          <div class="feature-desc">Search for doctors by location, specialty, cost, and availability. Our AI recommends the best match for your needs.</div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="feature-card">
+          <span class="feature-icon">&#128172;</span>
+          <div class="feature-name">AI Health Assistant</div>
+          <div class="feature-desc">Get instant health guidance through our intelligent chatbot that helps determine your care needs.</div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="feature-card">
+          <span class="feature-icon">&#128200;</span>
+          <div class="feature-name">Wearable Integration</div>
+          <div class="feature-desc">Connect your health devices to share real-time data with your healthcare providers.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Section -->
+  <section class="why-section container-fluid">
+    <div class="why-title text-center">Why Choose AccessHealth?</div>
+    <div class="row justify-content-center">
+      <div class="col-sm-6 col-lg-3">
+        <div class="why-card mb-3">
+          <span class="why-icon">&#10084;</span>
+          <div class="title">Affordable Care</div>
+          <div class="desc">Find doctors that fit your budget and insurance coverage</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="why-card mb-3">
+          <span class="why-icon">&#128241;</span>
+          <div class="title">Always Accessible</div>
+          <div class="desc">Available 24/7 on web and mobile platforms</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="why-card bg-purple mb-3">
+          <span class="why-icon">&#129302;</span>
+          <div class="title">AI-Powered</div>
+          <div class="desc">Smart recommendations and health guidance</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="why-card bg-lightred mb-3">
+          <span class="why-icon">&#128274;</span>
+          <div class="title">Secure & Private</div>
+          <div class="desc">Your health data is encrypted and protected</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Footer -->
+  <section class="footer-cta container-fluid">
+    <div class="footer-cta-title">Ready to Get Started?</div>
+    <div class="footer-cta-desc">Join thousands of Rwandans who are already using AccessHealth for better health outcomes.</div>
+    <div>
+      <a href="{% url 'patient_login' %}" class="btn">Find a Doctor Now</a>
+      <a href="{% url 'patient_login' %}" class="btn">Try AI Assistant</a>
+    </div>
+  </section>
+   <!-- Login: choose role -->
+<div class="modal fade" id="loginRoleModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Login as</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <a  href="{% url 'patient_login' %}" class="btn btn-primary btn-green m-2">Patient</a>
+        <a href="{% url 'doctor_login' %}" class="btn btn-success btn-green m-2">Doctor</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Signup: choose role -->
+<div class="modal fade" id="signupRoleModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Sign up as</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <a href="{% url 'patient_signup' %}" class="btn btn-primary btn-green m-2">Patient</a>
+        <a href="{% url 'doctor_signup' %}" class="btn btn-success btn-green m-2" >Doctor</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% if messages %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Define the Toast configuration
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end', // Top right corner
+            showConfirmButton: false,
+            timer: 3000, // Disappears after 3 seconds
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        // Loop through Django messages
+        {% for message in messages %}
+            Toast.fire({
+                icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                title: "{{ message }}"
+            });
+        {% endfor %}
+    });
+</script>
+</body>
+</html>

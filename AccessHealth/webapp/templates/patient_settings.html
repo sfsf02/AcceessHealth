@@ -1,0 +1,1081 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Profile & Settings - AccessHealth</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #10b981; /* Mint Green */
+            --primary-dark: #059669;
+            --primary-light: #d1fae5;
+            --bg-body: #f9fafb;
+            --bg-card: #ffffff;
+            --text-dark: #111827;
+            --text-gray: #6b7280;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            padding-bottom: 50px;
+        }
+        .language-dropdown,
+        .dropdown-profile {
+            position: relative;
+            display: inline-block;
+        }
+
+        .lang-toggle,
+        .profile-toggle {
+            background: transparent;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .lang-menu,
+        .profile-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 120%;
+            background: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            min-width: 180px;
+            padding: 0.4rem 0;
+            z-index: 1000;
+            list-style: none;
+        }
+
+        .lang-menu li,
+        .profile-menu li {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .lang-menu li:hover,
+        .profile-menu li:hover {
+            background-color: #f3f4f6;
+        }
+
+        .notification-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .notification-button {
+            position: relative;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+        }
+
+        .notification-button .badge-count {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ef4444;
+            color: #fff;
+            border-radius: 999px;
+            padding: 0 6px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            right: 0;
+            top: 140%;
+            width: 320px;
+            background: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+            padding: 0.75rem 0;
+            display: none;
+            z-index: 1200;
+        }
+
+        .notification-dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1rem 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .notification-list {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.6rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .notification-item.unread {
+            background: #eff6ff;
+        }
+
+        .notification-item:hover {
+            background: #f3f4f6;
+        }
+
+        .notification-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .notification-content .notification-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .notification-content .notification-message {
+            color: #6b7280;
+            margin-bottom: 2px;
+        }
+
+        .notification-content .notification-time {
+            color: #9ca3af;
+            font-size: 0.7rem;
+        }
+
+        .notification-empty {
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        /* --- Header (Shared) --- */
+        header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            text-decoration: none;
+        }
+        .logo i { color: var(--primary); font-size: 1.4rem; }
+
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-gray);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .nav-links a:hover { color: var(--primary); }
+
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: var(--text-gray);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary); /* Active state color */
+            color: white;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* --- Page Layout --- */
+        main {
+            max-width: 100%%; /* Use the width you prefer */
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            main { grid-template-columns: 1fr; }
+        }
+
+        /* --- Sidebar Navigation --- */
+        .settings-sidebar {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            height: fit-content;
+        }
+
+        .sidebar-btn {
+            width: 100%;
+            text-align: left;
+            padding: 12px 15px;
+            border: none;
+            background: transparent;
+            color: var(--text-gray);
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-btn i { width: 20px; text-align: center; }
+
+        .sidebar-btn:hover { background: #f3f4f6; color: var(--text-dark); }
+        
+        .sidebar-btn.active {
+            background: #ecfdf5;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* --- Content Area --- */
+        .content-panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            display: none; /* Hidden by default */
+        }
+        .content-panel.active { display: block; }
+
+        h2.panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- Forms (Profile) --- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .form-control, 
+    .form-select, 
+    input[type="text"], 
+    input[type="email"], 
+    input[type="date"], 
+    select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        background-color: #f9fafb;
+        font-size: 0.95rem;
+        color: #111827;
+        height: 45px; /* Fixed height ensures alignment */
+        box-sizing: border-box; /* Ensures padding doesn't break width */
+        margin-top: 5px;
+    }
+
+    /* Focus state for active inputs */
+    .form-control:focus, 
+    .form-select:focus,
+    select:focus {
+        outline: none;
+        border-color: var(--primary);
+        background-color: white;
+    }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.9rem;
+    }
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #f9fafb;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 2rem;
+        }
+        .large-avatar {
+            width: 80px;
+            height: 80px;
+            background: #e5e7eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--text-gray);
+        }
+        .btn-upload {
+            padding: 8px 15px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .btn-save {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            float: right;
+        }
+        .btn-save:hover { background: var(--primary-dark); }
+
+        /* --- Records Table --- */
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        .records-table th {
+            text-align: left;
+            padding: 12px 15px;
+            background: #f9fafb;
+            color: var(--text-gray);
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .records-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        .records-table tr:hover { background: #f9fafb; }
+
+        .file-icon {
+            color: var(--danger); /* PDF Red */
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-right: 5px;
+            color: var(--text-dark);
+            text-decoration: none;
+        }
+        .action-btn:hover { background: #f3f4f6; }
+        .btn-view { color: var(--text-gray); }
+        .btn-download { color: var(--primary); border-color: var(--primary-light); background: #ecfdf5; }
+
+        .record-type {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .type-lab { background: #eff6ff; color: #2563eb; }
+        .type-presc { background: #f0fdf4; color: #166534; }
+        .type-img { background: #f3e8ff; color: #7e22ce; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="{% url 'patient_dashboard'%}" class="logo">
+            <i class="fa-solid fa-heart-pulse"></i> AccessHealth
+        </a>
+        <nav class="nav-links">
+            <a href="{% url 'patient_dashboard'%}">Dashboard</a> 
+            <a href="{%url "find_doctors"%}" >Find Doctors</a>
+            <a href="#">AI Triage</a>
+        </nav>
+        <div class="user-controls">
+
+    <!-- Language dropdown -->
+    <div class="language-dropdown">
+        <button class="lang-toggle">
+            <i class="fa-solid fa-globe"></i>
+            <span id="current-lang">EN</span>
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem;"></i>
+        </button>
+        <ul class="lang-menu">
+            <li data-lang="EN">English</li>
+            <li data-lang="SW">Swahili</li>
+            <li data-lang="RW">Kinyarwanda</li>
+            <li data-lang="FR">French</li>
+        </ul>
+    </div>
+
+    <div class="notification-wrapper">
+    <button class="notification-button" id="notificationToggle">
+        <i class="fa-regular fa-bell"></i>
+        {% if unread_count > 0 %}
+            <span class="badge-count">{{ unread_count }}</span>
+        {% endif %}
+    </button>
+
+    <div class="notification-dropdown" id="notificationDropdown">
+        <div class="notification-dropdown-header">
+            <span>Notifications</span>
+            <span class="notification-count">
+                {% if unread_count > 0 %}
+                    {{ unread_count }} new
+                {% else %}
+                    No new
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="notification-list">
+            {% if notifications %}
+                {% for n in notifications %}
+                    <div class="notification-item {% if not n.is_read %}unread{% endif %}">
+                        <div class="notification-icon">
+                            {% if n.notification_type == 'appointment' or n.notification_type == 'reminder' %}
+                                <i class="fa-regular fa-calendar"></i>
+                            {% elif n.notification_type == 'message' %}
+                                <i class="fa-regular fa-envelope"></i>
+                            {% elif n.notification_type == 'patient' %}
+                                <i class="fa-regular fa-user"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-info"></i>
+                            {% endif %}
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">{{ n.title }}</div>
+                            <div class="notification-message">{{ n.message|truncatechars:80 }}</div>
+                            <div class="notification-time">{{ n.created_at|timesince }} ago</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="notification-empty">
+                    No notifications yet.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+    <!-- Profile dropdown -->
+    <div class="user-profile dropdown-profile">
+        <div class="avatar">
+            {{ request.user.first_name|first }}{{ request.user.last_name|first }}
+        </div>
+        <button class="profile-toggle">
+            <span>Hello, {{ request.user.first_name }}</span>
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem;"></i>
+        </button>
+        <ul class="profile-menu">
+            <li><a href="{%url 'patient-settings'%}">Profile settings</a></li>
+            <li><a href="{%url 'logout'%}">Logout</a></li>
+        </ul>
+    </div>
+</div>
+    </header>
+
+    <main style="display: grid; grid-template-columns: 280px 1fr; gap: 30px; max-width: 100%; margin: 0 auto; padding: 2rem;">
+
+    <aside class="settings-sidebar" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 1rem; height: fit-content;">
+    <button type="button" class="sidebar-btn active" onclick="showPanel(event, 'profile')">
+        <i class="fa-regular fa-user"></i> Profile Information
+    </button>
+    <button type="button" class="sidebar-btn" onclick="showPanel(event, 'records')">
+        <i class="fa-solid fa-file-medical"></i> Medical Records
+    </button>
+    <button type="button" class="sidebar-btn" onclick="showPanel(event, 'security')">
+        <i class="fa-solid fa-shield-halved"></i> Security & Login
+    </button>
+    <button type="button" class="sidebar-btn" onclick="showPanel(event, 'notifications')">
+        <i class="fa-regular fa-bell"></i> Notifications
+    </button>
+</aside>
+
+    <div id="profile" class="content-panel active">
+    
+    <h2 class="panel-title">Profile Information</h2>
+    
+    {% if profile_form.non_field_errors %}
+        <div style="background-color: #fee2e2; color: #ef4444; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
+            {{ profile_form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="profile_submit" value="1">
+        
+        <div class="profile-header" style="display: flex; align-items: center; gap: 20px; margin-bottom: 2rem;">
+            <div class="large-avatar" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: gray;">
+                {% if patient.avatar %}
+                    <img src="{{ patient.avatar.url }}" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">
+                {% else %}
+                    {{ patient.first_name|first|upper }}{{ patient.last_name|first|upper }}
+                {% endif %}
+            </div>
+            <div>
+                <h3 style="margin-bottom: 5px;">{{ patient.first_name }} {{ patient.last_name }}</h3>
+                <p style="color:var(--text-gray); font-size:0.9rem; margin-bottom:10px;">ID: #{{ patient.patient_national_id }}</p>
+                
+                <label class="btn-upload" style="cursor:pointer; padding: 8px 15px; border: 1px solid #e5e7eb; border-radius: 6px; background: white; font-size: 0.85rem;">
+                    Change Avatar
+                    {{ profile_form.avatar }}
+                </label>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>First Name</label> 
+                {{ profile_form.first_name }}
+            </div>
+            
+            <div class="form-group">
+                <label>Last Name</label> 
+                {{ profile_form.last_name }}
+            </div>
+            
+            <div class="form-group">
+                <label>Email Address</label> 
+                {{ profile_form.email }}
+                {% if profile_form.email.errors %}
+                    <div style="color:red; font-size:0.8rem;">{{ profile_form.email.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label>Phone Number</label> 
+                {{ profile_form.phone_number }}
+            </div>
+            
+            <div class="form-group">
+                <label>Date of Birth</label> 
+                {{ profile_form.dob }}
+            </div>
+            
+            <div class="form-group">
+                <label>Blood Type</label> 
+                {{ profile_form.blood_type }}
+            </div>
+            
+            <div class="form-group">
+                <label>Address</label> 
+                {{ profile_form.address }}
+            </div>
+            
+            <div class="form-group">
+                <label>Emergency Contact</label> 
+                {{ profile_form.emergency_contact }}
+            </div>
+
+            <div class="form-group">
+                <label>Gender</label> 
+                {{ profile_form.gender }}
+            </div>
+
+            <div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="district">Primary Practice District</label>
+        <select id="primary_practice_district" name="district" class="form-control" required>
+            <option value="" disabled selected>Select district</option>
+            <option value="Gasabo">Gasabo</option>
+            <option value="Kicukiro">Kicukiro</option>
+            <option value="Nyarugenge">Nyarugenge</option>
+            <option value="Bugesera">Bugesera</option>
+            <option value="Gatsibo">Gatsibo</option>
+            <option value="Kayonza">Kayonza</option>
+            <option value="Kirehe">Kirehe</option>
+            <option value="Ngoma">Ngoma</option>
+            <option value="Nyagatare">Nyagatare</option>
+            <option value="Rwamagana">Rwamagana</option>
+            <option value="Burera">Burera</option>
+            <option value="Gakenke">Gakenke</option>
+            <option value="Gicumbi">Gicumbi</option>
+            <option value="Musanze">Musanze</option>
+            <option value="Rulindo">Rulindo</option>
+            <option value="Gisagara">Gisagara</option>
+            <option value="Huye">Huye</option>
+            <option value="Kamonyi">Kamonyi</option>
+            <option value="Muhanga">Muhanga</option>
+            <option value="Nyamagabe">Nyamagabe</option>
+            <option value="Nyanza">Nyanza</option>
+            <option value="Nyaruguru">Nyaruguru</option>
+            <option value="Ruhango">Ruhango</option>
+            <option value="Karongi">Karongi</option>
+            <option value="Ngororero">Ngororero</option>
+            <option value="Nyabihu">Nyabihu</option>
+            <option value="Nyamasheke">Nyamasheke</option>
+            <option value="Rubavu">Rubavu</option>
+            <option value="Rusizi">Rusizi</option>
+            <option value="Rutsiro">Rutsiro</option>
+        </select>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label for="sector">Primary Practice Sector</label>
+        <select id="primary_practice_sector" name="sector" class="form-control" disabled required>
+            <option value="" disabled selected>Select District First</option>
+        </select>
+    </div>
+</div>
+            </div>
+
+        <button type="submit" class="btn-save" style="margin-top: 25px; background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: 500;">
+            Save Changes
+        </button>
+    </form>
+</div>
+
+    <div id="records" class="content-panel" style="display: none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e5e7eb; padding-bottom:1rem; margin-bottom:1.5rem;">
+        <h2 class="panel-title" style="border:none; margin:0;">Medical Records</h2>
+        
+        <form method="post" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center;">
+            {% csrf_token %}
+            <input type="hidden" name="record_submit" value="1">
+            <div style="max-width: 250px;">{{ record_form.attachment }}</div>
+            <button type="button" class="action-btn" onclick="document.querySelector('[name=record_submit]').click();" style="background:var(--primary); color:white; border:none; padding: 8px 15px; border-radius: 6px; cursor: pointer;">
+                <i class="fa-solid fa-plus"></i> Upload
+            </button>
+            <button type="submit" name="record_submit" value="1" style="display:none;"></button>
+        </form>
+    </div>
+
+    <table class="records-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f9fafb; text-align: left; border-bottom: 1px solid #e5e7eb;">
+                <th style="padding: 12px; font-weight: 600; color: #374151;">Date</th>
+                <th style="padding: 12px; font-weight: 600; color: #374151;">Type</th>
+                <th style="padding: 12px; font-weight: 600; color: #374151;">Doctor</th>
+                <th style="padding: 12px; text-align: right; font-weight: 600; color: #374151;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rec in records %}
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #4b5563;">
+                        {{ rec.created_time|date:"M d, Y" }}
+                    </td>
+                    
+                    <td style="padding: 12px;">
+                        {% if rec.diagnosis %}
+                            <span style="background:#eff6ff; color:#2563eb; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">Diagnosis</span>
+                        {% else %}
+                            <span style="background:#f3f4f6; color:#6b7280; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">Uploaded File</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td style="padding: 12px;">
+                        {% if rec.doctor %}
+                            Dr. {{ rec.doctor.last_name }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    
+                    <td style="padding: 12px; text-align: right;">
+                        <button type="button" class="btn btn-sm" 
+                                style="border: 1px solid #d1d5db; background: white; color: #374151; padding: 4px 10px; border-radius: 4px; margin-right: 5px;"
+                                data-bs-toggle="modal" data-bs-target="#recordModal{{ rec.id }}">
+                            <i class="fa-regular fa-eye"></i> Details
+                        </button>
+
+                        {% if rec.attachment %}
+                            <a href="{{ rec.attachment.url }}" download 
+                               style="border: 1px solid var(--primary); background: white; color: var(--primary); padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.9rem;">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <div class="modal fade" id="recordModal{{ rec.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Record Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <small class="text-muted">Date:</small>
+                                    <div><strong>{{ rec.created_time|date:"F d, Y - H:i" }}</strong></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <small class="text-muted">Doctor:</small>
+                                    <div>
+                                        {% if rec.doctor %}Dr. {{ rec.doctor.first_name }} {{ rec.doctor.last_name }}{% else %}Self Uploaded{% endif %}
+                                    </div>
+                                </div>
+
+                                {% if rec.diagnosis %}
+                                    <hr>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Diagnosis:</small>
+                                        <div class="p-2 bg-light rounded">{{ rec.diagnosis }}</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Symptoms:</small>
+                                        <div>{{ rec.symptoms|default:"-" }}</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Treatment / Medicine:</small>
+                                        <div>{{ rec.medicine|default:"-" }}</div>
+                                    </div>
+                                {% endif %}
+
+                                {% if rec.attachment %}
+                                    <hr>
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ rec.attachment.url }}" target="_blank" class="btn btn-outline-primary">
+                                            <i class="fa-regular fa-file-pdf"></i> View Attachment
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <tr><td colspan="4" style="padding: 20px; text-align: center;">No records found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+    <div id="security" class="content-panel" style="display: none;">
+        <h2 class="panel-title">Security & Login</h2>
+        <form method="post" style="max-width: 500px;">
+            {% csrf_token %}
+            <input type="hidden" name="password_submit" value="1">
+            
+            {% for field in password_form %}
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">{{ field.label }}</label>
+                    {{ field }} {% if field.errors %}
+                        <div style="color: red; font-size: 0.85rem;">{{ field.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <button type="submit" class="btn-save" style="margin-top: 10px; background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px;">Update Password</button>
+        </form>
+    </div>
+
+    <div id="notifications" class="content-panel" style="display: none;">
+        <h2 class="panel-title">Notification Preferences</h2>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="notifications_submit" value="1">
+
+            <div style="display: grid; gap: 15px; max-width: 600px;">
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                    <label for="{{ prefs_form.email_appointment.id_for_label }}" style="cursor: pointer;">
+                        <strong>Email Alerts for Appointments</strong>
+                        <p style="margin: 0; font-size: 0.85rem; color: gray;">Receive booking confirmations via email.</p>
+                    </label>
+                    {{ prefs_form.email_appointment }}
+                </div>
+
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                    <label for="{{ prefs_form.email_health_alerts.id_for_label }}" style="cursor: pointer;">
+                        <strong>Email Health Warnings</strong>
+                        <p style="margin: 0; font-size: 0.85rem; color: gray;">Critical device alerts (e.g. high BP) via email.</p>
+                    </label>
+                    {{ prefs_form.email_health_alerts }}
+                </div>
+
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                    <label for="{{ prefs_form.sms_appointment.id_for_label }}" style="cursor: pointer;">
+                        <strong>SMS Appointment Reminders</strong>
+                        <p style="margin: 0; font-size: 0.85rem; color: gray;">Receive texts for upcoming visits.</p>
+                    </label>
+                    {{ prefs_form.sms_appointment }}
+                </div>
+            </div>
+
+            <button class="btn-save" style="margin-top: 20px; background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px;">Save Preferences</button>
+        </form>
+    </div>
+
+</main>
+
+    <script>
+    function showPanel(event, panelId) {
+        // 1. Prevent the button from refreshing the page
+        event.preventDefault(); 
+
+        // 2. Hide all content panels
+        const panels = document.querySelectorAll('.content-panel');
+        panels.forEach(panel => {
+            panel.style.display = 'none';
+            panel.classList.remove('active');
+        });
+
+        // 3. Deactivate all sidebar buttons
+        const buttons = document.querySelectorAll('.sidebar-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        // 4. Show the selected panel
+        const selectedPanel = document.getElementById(panelId);
+        if (selectedPanel) {
+            selectedPanel.style.display = 'block';
+            selectedPanel.classList.add('active');
+        }
+
+        // 5. Highlight the clicked button
+        event.currentTarget.classList.add('active');
+    }
+</script>
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const langToggle = document.querySelector('.lang-toggle');
+    const langMenu = document.querySelector('.lang-menu');
+    const currentLangSpan = document.getElementById('current-lang');
+
+    const profileToggle = document.querySelector('.profile-toggle');
+    const profileMenu = document.querySelector('.profile-menu');
+
+    if (langToggle && langMenu) {
+        langToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            langMenu.style.display = langMenu.style.display === 'block' ? 'none' : 'block';
+            if (profileMenu) profileMenu.style.display = 'none';
+        });
+
+        langMenu.querySelectorAll('li').forEach(function (item) {
+            item.addEventListener('click', function (e) {
+                const code = this.getAttribute('data-lang');
+                currentLangSpan.textContent = code;
+                langMenu.style.display = 'none';
+                // later you can POST to Django set_language here
+            });
+        });
+    }
+
+    if (profileToggle && profileMenu) {
+        profileToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            profileMenu.style.display = profileMenu.style.display === 'block' ? 'none' : 'block';
+            if (langMenu) langMenu.style.display = 'none';
+        });
+    }
+
+    document.addEventListener('click', function () {
+        if (langMenu) langMenu.style.display = 'none';
+        if (profileMenu) profileMenu.style.display = 'none';
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const bellBtn = document.getElementById('notificationToggle');
+    const dropdown = document.getElementById('notificationDropdown');
+
+    if (!bellBtn || !dropdown) return;
+
+    bellBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', function () {
+        dropdown.style.display = 'none';
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. DATA DEFINITION
+    const rwandaSectors = {
+        "Gasabo": ["Bumbogo", "Gatsata", "Jali", "Gikomero", "Gisozi", "Jabana", "Kinyinya", "Ndera", "Nduba", "Rusororo", "Rutunga", "Kacyiru", "Kimihurura", "Kimironko", "Remera"],
+        "Kicukiro": ["Gahanga", "Gatenga", "Gikondo", "Kagarama", "Kanombe", "Kicukiro", "Kigarama", "Masaka", "Niboye", "Nyarugunga"],
+        "Nyarugenge": ["Gitega", "Kanyinya", "Kigali", "Kimisagara", "Mageragere", "Muhima", "Nyakabanda", "Nyamirambo", "Nyarugenge", "Rwezamenyo"],
+        "Bugesera": ["Gashora", "Juru", "Kamabuye", "Ntarama", "Mareba", "Mayange", "Musenyi", "Mwogo", "Ngeruka", "Nyamata", "Nyarugenge", "Rilima", "Ruhuha", "Rweru", "Shyara"],
+        "Gatsibo": ["Gasange", "Gatsibo", "Gitoki", "Kabarore", "Kageyo", "Kiramuruzi", "Kiziguro", "Muhura", "Murambi", "Ngarama", "Nyagihanga", "Remera", "Rugarama", "Rwimbogo"],
+        "Kayonza": ["Gahini", "Kabare", "Kabarondo", "Mukarange", "Murama", "Murundi", "Mwiri", "Ndego", "Nyamirama", "Rukara", "Ruramira", "Rwinkwavu"],
+        "Kirehe": ["Gahara", "Gatore", "Kigina", "Kirehe", "Mahama", "Mpanga", "Musaza", "Mushikiri", "Nasho", "Nyamugari", "Nyarubuye", "Kigarama"],
+        "Ngoma": ["Gashanda", "Jarama", "Karembo", "Kazo", "Kibungo", "Mugesera", "Murama", "Mutenderi", "Remera", "Rukira", "Rukumberi", "Rurenge", "Sake", "Zaza"],
+        "Nyagatare": ["Gatunda", "Karama", "Karangazi", "Katabagemu", "Kiyombe", "Matimba", "Mimuri", "Mukama", "Musheri", "Nyagatare", "Rukomo", "Rwempasha", "Rwimiyaga", "Tabagwe"],
+        "Rwamagana": ["Fumbwe", "Gahengeri", "Gishari", "Karenge", "Kigabiro", "Muhazi", "Munyaga", "Muyumbu", "Mwulire", "Nyakariro", "Nzige", "Rubona", "Rwamagana", "Sha"],
+        "Burera": ["Bungwe", "Butaro", "Cyanika", "Cyeru", "Gahunga", "Gatebe", "Gitovu", "Kagogo", "Kinoni", "Kinyababa", "Kivuye", "Nemba", "Rugarama", "Rugendabari", "Ruhunde", "Rusarabuye", "Rwerere"],
+        "Gakenke": ["Busengo", "Coko", "Cyabingo", "Gakenke", "Gashenyi", "Janja", "Kamubuga", "Karambo", "Kivuruga", "Mataba", "Minazi", "Mugunga", "Muhondo", "Muyongwe", "Muzo", "Nemba", "Ruli", "Rusasa", "Rushashi"],
+        "Gicumbi": ["Bukure", "Bwisige", "Byumba", "Cyumba", "Giti", "Kaniga", "Manyagiro", "Miyove", "Kageyo", "Mukarange", "Muko", "Mutete", "Nyamiyaga", "NyankenkeII", "Rubaya", "Rukomo", "Rushaki", "Rutare", "Ruvune", "Rwamiko", "Shangasha"],
+        "Musanze": ["Busogo", "Cyuve", "Gacaca", "Gashaki", "Gataraga", "Kimonyi", "Kinigi", "Muhoza", "Muko", "Musanze", "Nkotsi", "Nyange", "Remera", "Rwaza", "Shingiro"],
+        "Rulindo": ["Base", "Burega", "Bushoki", "Buyoga", "Cyinzuzi", "Cyungo", "Kinihira", "Kisaro", "Masoro", "Mbogo", "Murambi", "Ngoma", "Ntarabana", "Rukozo", "Rusiga", "Shyorongi", "Tumba"],
+        "Gisagara": ["Gikonko", "Gishubi", "Kansi", "Kibilizi", "Kigembe", "Mamba", "Muganza", "Mugombwa", "Mukindo", "Musha", "Ndora", "Nyanza", "Save"],
+        "Huye": ["Gishamvu", "Karama", "Kigoma", "Kinazi", "Maraba", "Mbazi", "Mukura", "Ngoma", "Ruhashya", "Huye", "Rusatira", "Rwaniro", "Simbi", "Tumba"],
+        "Kamonyi": ["Gacurabwenge", "Karama", "Kayenzi", "Kayumbu", "Mugina", "Musambira", "Ngamba", "Nyamiyaga", "Nyarubaka", "Rugarika", "Rukoma", "Runda"],
+        "Muhanga": ["Cyeza", "Kabacuzi", "Kibangu", "Kiyumba", "Muhanga", "Mushishiro", "Nyabinoni", "Nyamabuye", "Nyarusange", "Rongi", "Rugendabari", "Shyogwe"],
+        "Nyamagabe": ["Buruhukiro", "Cyanika", "Gatare", "Kaduha", "Kamegeri", "Kibirizi", "Kibumbwe", "Kitabi", "Mbazi", "Mugano", "Musange", "Musebeya", "Mushubi", "Nkomane", "Gasaka", "Tare", "Uwinkingi"],
+        "Nyanza": ["Busasamana", "Busoro", "Cyabakamyi", "Kibirizi", "Kigoma", "Mukingo", "Muyira", "Ntyazo", "Nyagisozi", "Rwabicuma"],
+        "Nyaruguru": ["Cyahinda", "Busanze", "Kibeho", "Mata", "Munini", "Kivu", "Ngera", "Ngoma", "Nyabimata", "Nyagisozi", "Muganza", "Ruheru", "Ruramba", "Rusenge"],
+        "Ruhango": ["Bweramana", "Byimana", "Kabagari", "Kinazi", "Mbuye", "Mwendo", "Ntongwe", "Ruhango", "Shyogwe"],
+        "Karongi": ["Bwishyura", "Gishyita", "Gishari", "Gitesi", "Mubuga", "Murambi", "Murundi", "Mutuntu", "Rubengera", "Rugabano", "Ruganda", "Rwankuba", "Twumba"],
+        "Ngororero": ["Bwira", "Gatumba", "Hindiro", "Kabaya", "Kageyo", "Kavumu", "Matyazo", "Muhanda", "Muhororo", "Ndaro", "Ngororero", "Nyange", "Sovu"],
+        "Nyabihu": ["Bigogwe", "Jenda", "Jomba", "Kabatwa", "Karago", "Kintobo", "Mukamira", "Muringa", "Rambura", "Rugera", "Rurembo", "Shyira"],
+        "Nyamasheke": ["Bushekeri", "Bushenge", "Cyato", "Gihombo", "Kagano", "Kanjongo", "Karambi", "Karengera", "Kirimbi", "Macuba", "Mahembe", "Nyabitekeri", "Rangiro", "Ruharambuga", "Shangi"],
+        "Rubavu": ["Bugeshi", "Busasamana", "Cyanzarwe", "Gisenyi", "Kanama", "Kanzenze", "Mudende", "Nyakiriba", "Nyamyumba", "Nyundo", "Rubavu", "Rugerero"],
+        "Rusizi": ["Bugarama", "Butare", "Bweyeye", "Gikundamvura", "Gashonga", "Giheke", "Gihundwe", "Gitambi", "Kamembe", "Muganza", "Mururu", "Nkanka", "Nkombo", "Nkungu", "Nyakabuye", "Nyakarenzo", "Nzahaha", "Rwimbogo"],
+        "Rutsiro": ["Boneza", "Gihango", "Kigeyo", "Kivumu", "Manihira", "Mukura", "Murunda", "Musasa", "Mushonyi", "Mushubati", "Nyabirasi", "Ruhango", "Rusebeya"]
+    };
+
+    const districtSelect = document.getElementById('primary_practice_district');
+    const sectorSelect = document.getElementById('primary_practice_sector');
+
+    // 2. HELPER FUNCTION: Populate Sectors
+    function populateSectors(districtName, selectedSector = null) {
+        sectorSelect.innerHTML = '<option value="" disabled selected>Select Sector</option>';
+        
+        if (rwandaSectors[districtName]) {
+            rwandaSectors[districtName].forEach(function(sector) {
+                const option = document.createElement('option');
+                option.value = sector;
+                option.textContent = sector;
+                
+                // Mark as selected if it matches the database value
+                if (selectedSector && sector === selectedSector) {
+                    option.selected = true;
+                }
+                
+                sectorSelect.appendChild(option);
+            });
+            sectorSelect.disabled = false;
+        } else {
+            sectorSelect.disabled = true;
+        }
+    }
+
+    // 3. EVENT LISTENER (User changes district manually)
+    districtSelect.addEventListener('change', function() {
+        populateSectors(this.value);
+    });
+
+    // 4. ON PAGE LOAD (Pre-fill logic)
+    // We access the Django variable here using double braces
+    const savedDistrict = "{{ patient.district|default:'' }}"; 
+    const savedSector = "{{ patient.sector|default:'' }}";
+
+    if (savedDistrict) {
+        // Set the district dropdown
+        districtSelect.value = savedDistrict;
+        // Trigger the sector population
+        populateSectors(savedDistrict, savedSector);
+    }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% if messages %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Define the Toast configuration
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end', // Top right corner
+            showConfirmButton: false,
+            timer: 3000, // Disappears after 3 seconds
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        // Loop through Django messages
+        {% for message in messages %}
+            Toast.fire({
+                icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                title: "{{ message }}"
+            });
+        {% endfor %}
+    });
+</script>
+</body>
+</html>

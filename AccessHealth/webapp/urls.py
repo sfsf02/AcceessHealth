@@ -1,0 +1,27 @@
+from django.urls import path
+from . import views
+urlpatterns = [
+    path('doctor/signup/', views.doctor_signup_view, name='doctor_signup'),
+    path('patient/signup/', views.patient_signup_view, name='patient_signup'),
+    path('patient/login/', views.patient_login_view, name='patient_login'),
+    path('doctor/login/', views.doctor_login_view, name='doctor_login'),
+    path('doctor/dashboard/', views.DoctorDashboardView.as_view(), name='doctor_dashboard'),
+    path('doctor/patients/', views.patients_list, name='patients_list'),
+    path('patients/add-record/<int:pk>/', views.add_medical_record, name='add-medical-record'),
+    path('doctor/appointments/', views.appointments_list, name='doctor_appontments'),
+    path('doctor/appointments/create/', views.appointment_create, name='appointment-create'),
+    path('doctor/appointments/<int:pk>/edit/', views.appointment_edit, name='appointment-edit'),
+    path('doctor/appointments/<int:pk>/delete/', views.appointment_delete, name='appointment-delete'),
+    path('doctor/consultations/', views.consultations_list, name='consultations'),
+    path('doctor/consultations/create/', views.consultation_create, name='consultation-create'),
+    path('consultations/<int:pk>/edit/', views.consultation_edit, name='consultation-edit'),
+    path('consultations/<int:pk>/delete/', views.consultation_delete, name='consultation-delete'),
+    path('doctor/settings/', views.doctor_settings, name='doctor-settings'),
+    path('logout/', views.logout_view, name='logout'),
+    path('patient/dashboard/', views.patient_dashboard, name='patient_dashboard'),
+    path('patient/book-appointment/', views.book_appointment, name='book_appointment'),
+    path("patient/find-doctors/", views.find_doctors_view, name="find_doctors"),
+    path('patient/triage/', views.triage_page, name='triage_page'),
+    path('patient/settings/', views.patient_profile_settings, name='patient-settings'),
+    path('', views.landing, name='landing'),
+]
