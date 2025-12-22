@@ -238,20 +238,19 @@ class DoctorLoginForm(forms.Form):
 
 
 class AppointmentForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        # Pop the doctor from arguments (so parent class doesn't get confused)
+        self.doctor = kwargs.pop('doctor', None)
+        super(AppointmentForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model = Appointment
-        # 1. Added 'status' to the fields list
-        fields = ['patient', 'appointment_date', 'appointment_time', 'appointment_type', 'status', 'notes']
-        
+        fields = ['patient', 'appointment_date', 'appointment_time', 'appointment_type', 'notes']
         widgets = {
             'patient': forms.Select(attrs={'class': 'form-select border-start-0'}),
             'appointment_type': forms.Select(attrs={'class': 'form-select border-start-0'}),
-            'status': forms.Select(attrs={'class': 'form-select border-start-0'}),
-            
-            # 2. Changed Date and Time to standard HTML5 inputs
             'appointment_date': forms.DateInput(attrs={'class': 'form-control border-start-0', 'type': 'date'}),
             'appointment_time': forms.TimeInput(attrs={'class': 'form-control border-start-0', 'type': 'time'}),
-            
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
@@ -265,8 +264,10 @@ class AppointmentForm(forms.ModelForm):
             if date < datetime.date.today():
                 raise ValidationError("You cannot book appointments in the past.")
 
-            # 2. Check Database for conflicts
+            # 2. Check Database for conflicts SPECIFIC TO THIS DOCTOR
+            # We filter by 'doctor=self.doctor'
             conflicting_appointment = Appointment.objects.filter(
+                doctor=self.doctor,  # <--- CRITICAL FIX HERE
                 appointment_date=date,
                 appointment_time=time
             )
@@ -275,8 +276,12 @@ class AppointmentForm(forms.ModelForm):
             if self.instance.pk:
                 conflicting_appointment = conflicting_appointment.exclude(pk=self.instance.pk)
 
+            # Check status to allow double booking only if previous was cancelled?
+            # Usually we exclude cancelled appointments from blocking the slot
+            conflicting_appointment = conflicting_appointment.exclude(status='cancelled')
+
             if conflicting_appointment.exists():
-                raise ValidationError("This time slot is already booked. Please choose a different time.")
+                raise ValidationError("You already have an appointment at this time.")
 
         return cleaned_data
 

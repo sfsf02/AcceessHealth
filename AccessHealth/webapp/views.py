@@ -296,21 +296,31 @@ def appointment_create(request):
     doctor = get_object_or_404(Doctor, user=request.user)
 
     if request.method == 'POST':
-        form = AppointmentForm(request.POST)
+        # Pass the doctor to the form for validation
+        form = AppointmentForm(request.POST, doctor=doctor)
+        
         if form.is_valid():
             appointment = form.save(commit=False)
+            
+            # 1. Set the Doctor manually
             appointment.doctor = doctor
+            
+            # 2. Set the Status manually (Fixes the error)
+            appointment.status = 'confirmed'
+            
             appointment.save()
-            patient = appointment.patient
-            patient.doctors.add(doctor)
+            
+            # Link patient to doctor
+            appointment.patient.doctors.add(doctor)
+            
             messages.success(request, 'Appointment created successfully.')
-            # Redirect back to the main appointments page
             return redirect('doctor_appontments') 
         else:
-            # Optional: Add form errors to messages if invalid
-            messages.error(request, 'Error creating appointment. Please check inputs.')
+            # If form is invalid, show errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
             
-    # If GET request, just go back to the dashboard (since modal is on the dashboard)
     return redirect('doctor_appontments')
 
 
