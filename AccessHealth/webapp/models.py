@@ -26,7 +26,8 @@ class DoctorHospital(models.Model):
         unique_together = ("doctor", "hospital")
 
     def __str__(self):
-        return f"{self.doctor} @ {self.hospital} ({self.consultation_fee} RWF)"
+        # FIX: Use self.hospital.consultation_fee
+        return f"{self.doctor} @ {self.hospital} ({self.hospital.consultation_fee} RWF)"
 
 CustomUser = settings.AUTH_USER_MODEL 
 # Profile for Patients

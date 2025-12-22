@@ -5,15 +5,33 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 import datetime
 
+# forms.py
+from django import forms
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from .models import Doctor, Hospital, DoctorHospital
+
+User = get_user_model()
+
 class DoctorSignupForm(forms.ModelForm):
+    # 1. Custom Fields not in the Doctor model
     hospital = forms.ModelChoiceField(
         queryset=Hospital.objects.all(),
         required=True,
+        empty_label="Select Primary Hospital",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    email = forms.EmailField()
-    password = forms.CharField(widget=forms.PasswordInput)
-    confirm_password = forms.CharField(widget=forms.PasswordInput)
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email Address'})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
+    )
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm Password'})
+    )
 
     class Meta:
         model = Doctor
@@ -29,56 +47,89 @@ class DoctorSignupForm(forms.ModelForm):
             'specialization',
             'years_of_experience',
             'professional_bio',
-            
         ]
+        
+        # Add Bootstrap styling to generated fields
         widgets = {
-            'professional_bio': forms.Textarea(attrs={'rows': 4}),
+            'doctor_licence_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'dob': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'district': forms.TextInput(attrs={'class': 'form-control'}),
+            'sector': forms.TextInput(attrs={'class': 'form-control'}),
+            'gender': forms.Select(attrs={'class': 'form-select'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'specialization': forms.Select(attrs={'class': 'form-select'}),
+            'years_of_experience': forms.NumberInput(attrs={'class': 'form-control'}),
+            'professional_bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
 
     def clean_email(self):
+        """Check if email is already taken."""
         email = self.cleaned_data.get("email")
         if email and User.objects.filter(email__iexact=email).exists():
             raise ValidationError("This email is already registered.")
         return email
 
     def clean(self):
+        """Check if passwords match."""
         cleaned_data = super().clean()
         pwd = cleaned_data.get('password')
         cpwd = cleaned_data.get('confirm_password')
+
         if pwd and cpwd and pwd != cpwd:
             self.add_error('confirm_password', "Passwords do not match")
+        
         return cleaned_data
 
     def save(self, commit=True):
-        cleaned = self.cleaned_data
-        email = cleaned['email']
-        password = cleaned['password']
-        selected_hospital = cleaned['hospital']
+        """
+        Saves User, Doctor, and DoctorHospital link in a single transaction.
+        """
+        # We start a transaction block to ensure data integrity
+        with transaction.atomic():
+            cleaned = self.cleaned_data
+            email = cleaned['email']
+            password = cleaned['password']
+            selected_hospital = cleaned['hospital']
 
-        # 1) create user
-        user = User.objects.create_user(
-            username=email,
-            email=email,
-            password=password
-        )
-
-        # 2) create doctor profile
-        doctor = super().save(commit=False)
-        doctor.user = user
-        # Optional: also fill the text field with hospital name
-        doctor.hospital_or_clinic_affiliation = selected_hospital.name
-
-        if commit:
-            doctor.save()
-
-            # 3) link doctor to hospital via DoctorHospital
-            DoctorHospital.objects.create(
-                doctor=doctor,
-                hospital=selected_hospital,
-                is_primary_location=True
+            # 1. Create User
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=password,
+                first_name=cleaned.get('first_name', ''),
+                last_name=cleaned.get('last_name', '')
             )
 
-        return doctor
+            # 2. Create Doctor Profile
+            doctor = super().save(commit=False)
+            doctor.user = user
+            
+            # Auto-fill affiliation text from the selected hospital object
+            doctor.hospital_or_clinic_affiliation = selected_hospital.name
+            
+            # Optional: Copy district from hospital if the doctor didn't enter one
+            if not doctor.primary_practice_district and hasattr(selected_hospital, 'district'):
+                 doctor.primary_practice_district = selected_hospital.district
+            elif not doctor.primary_practice_district:
+                 # Fallback if manual entry is needed
+                 doctor.primary_practice_district = doctor.district
+
+            if commit:
+                doctor.save()
+                
+                # 3. Create Link (DoctorHospital)
+                DoctorHospital.objects.create(
+                    doctor=doctor,
+                    hospital=selected_hospital,
+                    is_primary_location=True
+                )
+                
+                # 4. Save Many-to-Many data (if any other fields existed)
+                self.save_m2m()
+
+            return doctor
 
 class PatientSignupForm(forms.ModelForm):
     # User-related fields

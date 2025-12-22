@@ -579,15 +579,15 @@ def find_doctors_view(request):
 
     # 6. Annotate Data (Fees, Ratings)
     # Subquery: get the consultation fee from the primary hospital relationship
-    dh_sub = DoctorHospital.objects.filter(
-        doctor=OuterRef("pk"),
-        is_primary_location=True
-    ).values('hospital__consultation_fee')[:1]
+    fee_subquery = DoctorHospital.objects.filter(
+            doctor=OuterRef("pk")
+            # We removed the filter!
+        ).values('hospital__consultation_fee')[:1]
 
     doctors_qs = doctors_qs.annotate(
         avg_rating=Avg("reviews__rating"),
         review_count=Count("reviews"),
-        consultation_fee=Subquery(dh_sub)
+        consultation_fee=Subquery(fee_subquery)
     )
 
     # 7. Apply Sorting
@@ -613,10 +613,11 @@ def find_doctors_view(request):
     unique_specialties = Doctor.objects.values_list(
         "specialization", flat=True
     ).distinct().order_by("specialization")
+    booking_form = PatientBookAppointmentForm()
 
     context = {
         "doctors_page": doctors_page,
-        
+        "booking_form": booking_form,
         # Pass filter lists to the template
         "locations": unique_locations,
         "specialties": unique_specialties,
@@ -693,6 +694,7 @@ def patient_profile_settings(request):
     # Fetch records for display
     records = patient.medical_records.all().order_by('-created_time')
 
+
     context = {
         "patient": patient,
         "profile_form": profile_form,
@@ -730,6 +732,21 @@ def book_appointment(request):
                 messages.error(request, "Error: Patient profile not found.")
                 return redirect('patient_dashboard')
                 
+    return redirect('patient_dashboard')
+
+@login_required
+def cancel_appointment(request, appointment_id):
+    if request.method == "POST":
+        # Get the appointment, ensuring it belongs to the logged-in patient
+        appointment = get_object_or_404(Appointment, id=appointment_id, patient__user=request.user)
+        
+        if appointment.status != 'cancelled':
+            appointment.status = 'cancelled'
+            appointment.save()
+            messages.success(request, "Appointment cancelled successfully.")
+        else:
+            messages.warning(request, "This appointment is already cancelled.")
+            
     return redirect('patient_dashboard')
 # Alternative: Function-based view (simpler, but class-based recommended for larger projects)
 """@login_required(login_url='login')

@@ -1086,182 +1086,135 @@
 
 
         <div id="appointments" class="tab-content">
-            <div class="appointment-action-bar">
-                <button type="button" class="btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
-                    <i class="fa-regular fa-calendar-plus"></i> Book Appointment
-                </button>
+    <div class="appointment-action-bar">
+        <button type="button" class="btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+            <i class="fa-regular fa-calendar-plus"></i> Book Appointment
+        </button>
+    </div>
+
+    {% if appt_page.object_list %}
+        {% for appt in appt_page.object_list %}
+            <div class="doctor-card">
+                <div class="doc-icon"><i class="fa-solid fa-user-doctor"></i></div>
+
+                <div class="doc-info" style="flex:1;">
+                    <h3>
+                        {% if appt.doctor.user.get_full_name %}
+                            {{ appt.doctor.user.get_full_name }}
+                        {% else %}
+                            {{ appt.doctor }}
+                        {% endif %}
+                    </h3>
+                    <p>{{ appt.doctor.specialization }}</p>
+                    <div class="doc-meta">
+                        <span><i class="fa-regular fa-calendar"></i> {{ appt.appointment_date }}</span>
+                        <span><i class="fa-regular fa-clock"></i> {{ appt.appointment_time|time:"g:i A" }}</span>
+                        <span><i class="fa-solid fa-location-dot"></i> {{ appt.doctor.hospital_or_clinic_affiliation }}</span>
+                    </div>
+                </div>
+
+                <div class="appt-status
+                    {% if appt.status == 'pending' or appt.status == 'confirmed' %}appt-upcoming
+                    {% elif appt.status == 'completed' %}appt-completed
+                    {% else %}appt-cancelled{% endif %}">
+                    {{ appt.get_status_display }}
+                </div>
+
+                <div class="appt-actions">
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#detailsModal{{ appt.id }}">
+                        <i class="fa-regular fa-file-lines"></i> Details
+                    </button>
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#callModal{{ appt.id }}">
+                        <i class="fa-solid fa-phone"></i> Call
+                    </button>
+                </div>
             </div>
 
-            {% if appt_page.object_list %}
-                {% for appt in appt_page.object_list %}
-                    <div class="doctor-card">
-                        <div class="doc-icon"><i class="fa-solid fa-user-doctor"></i></div>
-
-                        <div class="doc-info" style="flex:1;">
-                            <h3>
-                                {% if appt.doctor.user.get_full_name %}
-                                    {{ appt.doctor.user.get_full_name }}
-                                {% else %}
-                                    {{ appt.doctor }}
-                                {% endif %}
-                            </h3>
-                            <p>{{ appt.doctor.specialization }}</p>
-                            <div class="doc-meta">
-                                <span>
-                                    <i class="fa-regular fa-calendar"></i>
-                                    {{ appt.appointment_date }}
-                                </span>
-                                <span>
-                                    <i class="fa-regular fa-clock"></i>
-                                    {{ appt.appointment_time|time:"g:i A" }}
-                                </span>
-                                <span>
-                                    <i class="fa-solid fa-location-dot"></i>
-                                    {{ appt.doctor.hospital_or_clinic_affiliation }}
+            <div class="modal fade" id="detailsModal{{ appt.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Appointment Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-start">
+                            <div class="mb-3"><strong>Doctor:</strong> Dr. {{ appt.doctor.last_name }}</div>
+                            <div class="mb-3"><strong>Type:</strong> <span class="badge bg-info text-dark">{{ appt.get_appointment_type_display }}</span></div>
+                            <div class="row mb-3">
+                                <div class="col-6"><strong>Date:</strong> {{ appt.appointment_date }}</div>
+                                <div class="col-6"><strong>Time:</strong> {{ appt.appointment_time }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Status:</strong> 
+                                <span class="badge {% if appt.status == 'confirmed' %}bg-success{% elif appt.status == 'pending' %}bg-warning{% elif appt.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ appt.get_status_display }}
                                 </span>
                             </div>
+                            <div class="mb-3">
+                                <strong>Your Notes:</strong>
+                                <div class="text-muted border p-2 rounded" style="background-color: #f9fafb; min-height: 40px;">
+                                    {{ appt.notes|default:"No notes provided." }}
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="appt-status
+                        <div class="modal-footer d-flex justify-content-between align-items-center">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             {% if appt.status == 'pending' or appt.status == 'confirmed' %}
-                                appt-upcoming
-                            {% elif appt.status == 'completed' %}
-                                appt-completed
-                            {% else %}
-                                appt-cancelled
+                                <form method="post" action="{% url 'cancel_appointment' appt.id %}" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger d-flex align-items-center gap-2" onclick="return confirm('Are you sure?');">
+                                        <i class="fa-solid fa-ban"></i> Cancel Appointment
+                                    </button>
+                                </form>
                             {% endif %}
-                        ">
-                            {{ appt.get_status_display }}
-                        </div>
-
-                        <div class="appt-actions">
-                            <button type="button" data-bs-toggle="modal" data-bs-target="#detailsModal{{ appt.id }}">
-                                <i class="fa-regular fa-file-lines"></i> Details
-                            </button>
-
-                            <button type="button" data-bs-toggle="modal" data-bs-target="#callModal{{ appt.id }}">
-                                <i class="fa-solid fa-phone"></i> Call
-                            </button>
                         </div>
                     </div>
-                    <div class="modal fade" id="detailsModal{{ appt.id }}" tabindex="-1" aria-labelledby="modalLabel{{ appt.id }}" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalLabel{{ appt.id }}">
-            Appointment Details
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body text-start">
-        <div class="mb-3">
-            <strong>Doctor:</strong> {{ appt.doctor.full_name }}
-        </div>
-        <div class="mb-3">
-            <strong>Type:</strong> 
-            <span class="badge bg-info text-dark">{{ appt.get_appointment_type_display }}</span>
-        </div>
-        <div class="row mb-3">
-            <div class="col-6">
-                <strong>Date:</strong> {{ appt.appointment_date }}
-            </div>
-            <div class="col-6">
-                <strong>Time:</strong> {{ appt.appointment_time }}
-            </div>
-        </div>
-        <div class="mb-3">
-            <strong>Status:</strong> 
-            <span class="badge 
-                {% if appt.status == 'confirmed' %}bg-success
-                {% elif appt.status == 'pending' %}bg-warning
-                {% elif appt.status == 'cancelled' %}bg-danger
-                {% else %}bg-secondary{% endif %}">
-                {{ appt.get_status_display }}
-            </span>
-        </div>
-        
-        <div class="mb-3">
-            <strong>Your Notes:</strong>
-            <p class="text-muted border p-2 rounded" style="background-color: #f9fafb;">
-                {{ appt.notes|default:"No notes provided." }}
-            </p>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        {% if appt.status == 'pending' %}
-            <button class="btn btn-danger">Cancel Appointment</button>
-        {% endif %}
-      </div>
-
-    </div>
-  </div>
-</div>
-<div class="modal fade" id="callModal{{ appt.id }}" tabindex="-1" aria-labelledby="callLabel{{ appt.id }}" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered">
-    <div class="modal-content">
-      
-      <div class="modal-header">
-        <h5 class="modal-title" id="callLabel{{ appt.id }}">Select Contact</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        <p class="text-muted small mb-3">Who would you like to call?</p>
-
-        <a href="tel:{{ appt.doctor.phone_number }}" class="btn btn-outline-primary w-100 mb-2 text-start">
-            <i class="fa-solid fa-user-doctor me-2"></i> 
-            <strong>Dr. {{ appt.doctor.last_name }}</strong>
-            <div class="small text-muted ms-4">{{ appt.doctor.phone_number }}</div>
-        </a>
-      </div>
-
-    </div>
-  </div>
-</div>
-                {% endfor %}
-            {% else %}
-                <p style="color:gray; font-size:0.9rem;">No appointments yet.</p>
-            {% endif %}
-
-            <!-- Pagination controls -->
-            {% if appt_page.paginator.num_pages > 1 %}
-                <div class="pagination">
-                    {% if appt_page.has_previous %}
-                        <a class="page-btn" href="?page=1"><i class="fa-solid fa-angles-left"></i></a>
-                        <a class="page-btn" href="?page={{ appt_page.previous_page_number }}">
-                            <i class="fa-solid fa-angle-left"></i>
-                        </a>
-                    {% else %}
-                        <button class="page-btn" disabled><i class="fa-solid fa-angles-left"></i></button>
-                        <button class="page-btn" disabled><i class="fa-solid fa-angle-left"></i></button>
-                    {% endif %}
-
-                    {% for num in appt_page.paginator.page_range %}
-                        {% if num == appt_page.number %}
-                            <button class="page-btn active">{{ num }}</button>
-                        {% elif num >= appt_page.number|add:"-2" and num <= appt_page.number|add:"2" %}
-                            <a class="page-btn" href="?page={{ num }}">{{ num }}</a>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if appt_page.has_next %}
-                        <a class="page-btn" href="?page={{ appt_page.next_page_number }}">
-                            <i class="fa-solid fa-angle-right"></i>
-                        </a>
-                        <a class="page-btn" href="?page={{ appt_page.paginator.num_pages }}">
-                            <i class="fa-solid fa-angles-right"></i>
-                        </a>
-                    {% else %}
-                        <button class="page-btn" disabled><i class="fa-solid fa-angle-right"></i></button>
-                        <button class="page-btn" disabled><i class="fa-solid fa-angles-right"></i></button>
-                    {% endif %}
                 </div>
+            </div>
+
+            <div class="modal fade" id="callModal{{ appt.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Select Contact</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="text-muted small mb-3">Who would you like to call?</p>
+                            <a href="tel:{{ appt.doctor.phone_number }}" class="btn btn-outline-primary w-100 mb-2 text-start">
+                                <i class="fa-solid fa-user-doctor me-2"></i> 
+                                <strong>Dr. {{ appt.doctor.last_name }}</strong>
+                                <div class="small text-muted ms-4">{{ appt.doctor.phone_number }}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:gray; font-size:0.9rem;">No appointments yet.</p>
+    {% endif %}
+
+    {% if appt_page.paginator.num_pages > 1 %}
+        <div class="pagination">
+            {% if appt_page.has_previous %}
+                <a class="page-btn" href="?page={{ appt_page.previous_page_number }}&tab=appointments"><i class="fa-solid fa-angle-left"></i></a>
+            {% endif %}
+
+            {% for num in appt_page.paginator.page_range %}
+                {% if num == appt_page.number %}
+                    <button class="page-btn active">{{ num }}</button>
+                {% elif num >= appt_page.number|add:"-2" and num <= appt_page.number|add:"2" %}
+                    <a class="page-btn" href="?page={{ num }}&tab=appointments">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if appt_page.has_next %}
+                <a class="page-btn" href="?page={{ appt_page.next_page_number }}&tab=appointments"><i class="fa-solid fa-angle-right"></i></a>
             {% endif %}
         </div>
+    {% endif %}
+</div>
 
     </main>
 
